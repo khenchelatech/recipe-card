@@ -1,0 +1,201 @@
+
+  <title>Print - Recipes Generator</title>
+  <meta content="noindex,nofollow" name="robots"></meta>
+  <link href="https://fonts.gstatic.com" rel="preconnect"></link>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&amp;display=swap" rel="stylesheet"></link>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
+  <style>
+    
+* {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Quicksand", sans-serif;
+  background: #fff;
+}
+
+    .button {
+      display: -webkit-inline-box;
+      display: -ms-inline-flexbox;
+      display: inline-flex;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+      flex-direction: column;
+      vertical-align: top;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 0;
+      border-radius: 4px;
+      text-align: center;
+      width: 220px;
+      height: 50px;
+      background: #fff;
+      cursor: pointer;
+      outline: 0;
+      -webkit-transition: all 0.3s;
+      transition: all 0.3s;
+      -webkit-box-shadow: 0 3px 15px 2px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 3px 15px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .button:hover {
+      box-shadow: 0 3px 15px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .button:active {
+      box-shadow: none;
+    }
+
+    .button-primary {
+      color: #000;
+      background: #FFEB3B;
+    }
+
+    .button-secondary {
+      color: #fff;
+      background: #6672e5;
+    }
+
+    .button-grey {
+      color: #fff;
+      background: #888;
+    }
+    
+.button-sm {
+    font-size: 12px;
+    width: auto;
+    height: 45px;
+    padding: 13px;
+}
+
+.mrs {
+    margin-right: 10px;
+}
+
+
+    .hide {
+      display: none !important;
+    }
+  </style>
+
+  <div class="print-page hide" id="print-options">
+    <button class="button button-grey button-sm mrs" id="print-options__with-image">Print with image</button>
+    <button class="button button-grey button-sm" id="print-options__without-image">Print without image</button>
+  </div>
+
+  <div class="print-page hide" id="print-only">
+    <button class="button button-grey">Print</button>
+  </div>
+
+
+  <div id="card-content"></div>
+
+  <style>
+    .ccm-wrapper {
+      box-shadow: none !important;
+    }
+
+    .ccm-hide-on-print {
+      display: none !important;
+      position: absolute !important;
+      visibility: hidden !important;
+      width: 0 !important;
+      height: 0 !important;
+      overflow: hidden !important;
+    }
+
+    .ccm-wrapper .ccm-name {
+      margin-bottom: 20px !important;
+    }
+
+    [data-ccmcardnum='1'] .ccm-name {
+      margin-top: 50px;
+    }
+  </style>
+  <style id="print-styles">
+    .print-page {
+      text-align: center;
+      margin: 30px 0;
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+  <style media="print">
+    @page {
+      margin: 10px;
+    }
+  </style>
+
+  <script>
+    function getParameterByName(name, url) {
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    //if(document.referrer) {
+    var cardContent = document.getElementById("card-content");
+    var printOptions = document.getElementById("print-options");
+    var pageUrl = getParameterByName("url") || document.referrer;
+
+    $.getJSON('https://api.allorigins.win/get?url=' + encodeURIComponent(pageUrl), function (data) {
+      cardContent.innerHTML = data.contents;
+      var card = cardContent.querySelector(".ccm-card").outerHTML;
+      var cardStyles = cardContent.querySelector(".ccm-card-styles");
+      if (cardStyles) {
+        cardStyles = cardStyles.outerHTML;
+      }
+      cardContent.innerHTML = card + cardStyles;
+      var image = document.querySelector(".ccm-image");
+      if (image) {
+        printOptions.classList.remove("hide");
+      } else {
+        $("#print-only").removeClass("hide");
+      }
+    });
+
+    function printPage(e) {
+      $(".print-page").addClass("hide");
+      $(".inline-ad").addClass("hide");
+      print();
+    }
+
+    document.getElementById("print-options").addEventListener("click", function (e) {
+      if (e.target.id === "print-options__without-image") {
+        var styles = document.getElementById("print-styles");
+        styles.innerHTML = styles.innerHTML + ".ccm-image{display:none!important;}";
+      }
+      printPage(e);
+    });
+
+    document.querySelector("#print-only button").addEventListener("click", function (e) {
+      printPage(e);
+    });
+
+
+    window.onafterprint = function () {
+      var image = document.querySelector(".ccm-image");
+      if (image) {
+        printOptions.classList.remove("hide");
+      } else {
+        $("#print-only").removeClass("hide");
+      }
+    }
+    //}
+  </script>
